@@ -27,10 +27,10 @@ class StreamBlockDefinition:
     ...     ("btn_external_link", "app.blocks.ExternalLinkButtonBlock"),
     ... )
 
-    This dataclass can be used directly with the MAP StreamFields below:
+    This dataclass can be used directly with the LazyStreamFields below:
 
-    >>> from map.apps.base.streamfield import StreamField
-    >>> StreamField(stream_blocks=BUTTON_BLOCKS)
+    >>> from lazy_streamfield.streamfield import LazyStreamField
+    >>> LazyStreamField(stream_blocks=BUTTON_BLOCKS)
     """
 
     items: tuple[tuple[str, str], ...]
