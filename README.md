@@ -99,8 +99,14 @@ class MyPage(Page):
 **With LazyStreamField:**
 
 ```python
-# Safe: "myapp.blocks.CardBlock" is just a string at module level
-body = LazyStreamField(BLOCKS)
+# blocks.py - Block paths are just strings, no imports needed
+BLOCKS = StreamBlockDefinition(
+    ('card', 'myapp.blocks.CardBlock'),
+)
+
+# models.py - Safe: block resolution happens at runtime, not import time
+class MyPage(Page):
+    body = LazyStreamField(BLOCKS)
 ```
 
 ### The Migration Bloat Problem
