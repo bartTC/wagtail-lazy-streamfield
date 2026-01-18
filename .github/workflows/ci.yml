@@ -43,6 +43,6 @@ jobs:
 
       - name: Run lint checks
         run: |
-          uv run --extra=dev ruff check .
-          uv run --extra=dev ruff format --check .
-          uv run --extra=dev ty check lazy_streamfield/
+          uv run --group=dev ruff check .
+          uv run --group=dev ruff format --check .
+          uv run --group=dev ty check lazy_streamfield/

@@ -7,7 +7,7 @@ WAGTAIL_VERSIONS=(">=6,<7" ">=7,<8")
 
 echo "Type Check:"
 echo "==========="
-uv run --extra=dev ty check lazy_streamfield/
+uv run --group=dev ty check lazy_streamfield/
 echo ""
 
 echo "Test Matrix:"
