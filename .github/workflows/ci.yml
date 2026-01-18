@@ -46,3 +46,6 @@ jobs:
 
       - name: Run ruff format check
         run: uvx ruff format --check .
+
+      - name: Run ty type check
+        run: uvx ty check lazy_streamfield/

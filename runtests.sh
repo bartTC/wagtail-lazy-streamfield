@@ -5,6 +5,11 @@ set -euo pipefail
 PYTHON_VERSIONS=(3.12 3.13 3.14)
 WAGTAIL_VERSIONS=(">=6,<7" ">=7,<8")
 
+echo "Type Check:"
+echo "==========="
+uvx ty check lazy_streamfield/
+echo ""
+
 echo "Test Matrix:"
 echo "============"
 for python in "${PYTHON_VERSIONS[@]}"; do

@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import importlib
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
-
-    from wagtail.blocks import BaseBlock
-
+    from wagtail.blocks import Block
 
 # Django Choices type
 type Choices = Iterable[tuple[str, str]]
@@ -53,7 +51,7 @@ class StreamBlockDefinition:
         return StreamBlockDefinition(*combined.items())
 
     @staticmethod
-    def _import_object(dotted_path: str) -> type:
+    def _import_object(dotted_path: str) -> type[Block]:
         """
         Imports and returns a class or object from a given dotted path string. The
         path should include both the module and the object/class name, separated
@@ -70,7 +68,7 @@ class StreamBlockDefinition:
 
     def instantiate(
         self, *, skip: str | None = None
-    ) -> list[tuple[str, Callable[..., BaseBlock]]]:
+    ) -> list[tuple[str, Block]]:
         """
         Returns a list of tuples containing the block name and the block class.
         This is suitable for use with the `block_types` argument of a StreamField

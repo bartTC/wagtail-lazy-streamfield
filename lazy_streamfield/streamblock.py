@@ -1,6 +1,6 @@
 from typing import Any
 
-from wagtail.blocks import StreamBlock as StreamBlock
+from wagtail.blocks import StreamBlock
 
 from .datatypes import StreamBlockDefinition
 
