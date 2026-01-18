@@ -66,9 +66,7 @@ class StreamBlockDefinition:
         module = importlib.import_module(module_path)
         return getattr(module, class_name)
 
-    def instantiate(
-        self, *, skip: str | None = None
-    ) -> list[tuple[str, Block]]:
+    def instantiate(self, *, skip: str | None = None) -> list[tuple[str, Block]]:
         """
         Returns a list of tuples containing the block name and the block class.
         This is suitable for use with the `block_types` argument of a StreamField
