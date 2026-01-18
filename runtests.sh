@@ -7,7 +7,7 @@ WAGTAIL_VERSIONS=(">=6,<7" ">=7,<8")
 
 echo "Type Check:"
 echo "==========="
-uvx ty check lazy_streamfield/
+uv run --no-project --with=wagtail --with=. ty check lazy_streamfield/
 echo ""
 
 echo "Test Matrix:"
