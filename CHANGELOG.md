@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added `ty` type checker to CI and `runtests.sh`.
 - Added pre-commit configuration with ruff, ty, and standard hooks.
+- Added `[dependency-groups]` for dev tools.
+
+### Changed
+- Consolidated CI lint checks into single step using project dependencies.
+- Cleaned up ruff configuration, removed unnecessary ignore rules.
 
 ## [1.0.0] - 2026-01-17
 
