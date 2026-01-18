@@ -48,4 +48,4 @@ jobs:
         run: uvx ruff format --check .
 
       - name: Run ty type check
-        run: uv run --no-project --with=wagtail --with=. ty check lazy_streamfield/
+        run: uv run --extra=dev ty check lazy_streamfield/
