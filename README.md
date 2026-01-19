@@ -3,18 +3,49 @@
 [![PyPI](https://img.shields.io/pypi/v/wagtail-lazy-streamfield.svg)](https://pypi.org/project/wagtail-lazy-streamfield/)
 [![License](https://img.shields.io/pypi/l/wagtail-lazy-streamfield.svg)](https://github.com/bartTC/wagtail-lazy-streamfield/blob/main/LICENSE)
 
-A lightweight utility for Wagtail that defers `StreamField` block instantiation. It resolves circular import issues in complex block dependencies and eliminates block definitions from Django migrations to keep them clean and manageable.
+This module provides a lazy-loading StreamField for Wagtail. Resolves circular import issues between blocks and models, and keeps migrations free of block structure bloat.
 
-## Features
+## The Circular Import Problem
 
-- **Lazy Loading**: Defers block import and instantiation until runtime, preventing circular import errors.
-- **Clean Migrations**: Excludes block definitions from migration files, reducing file size and generation time.
-- **Zero Database Overhead**: Works with standard `JSONField` storage; no database schema changes required.
-- **Typed**: Fully type-hinted and PEP 561 compatible.
+In Wagtail projects, blocks often become interdependent. A `CardBlock` might reference a page model that has a `StreamField` using `CardBlock`. This causes `ImportError` at startup:
+
+```python
+# Fails if CardBlock imports this file
+from .blocks import CardBlock
+
+class MyPage(Page):
+    body = StreamField([
+        ('card', CardBlock()),  # Instantiation requires immediate import
+    ])
+```
+
+With `LazyStreamField`, block paths are strings. Resolution happens at runtime, not import time:
+
+```python
+class MyPage(Page):
+    body = LazyStreamField(StreamBlockDefinition(
+        ('card', 'myapp.blocks.CardBlock'),
+    ))
+```
+
+## The Migration Bloat Problem
+
+Wagtail freezes the entire `StreamField` block structure into migration files. Complex sites can have migrations exceeding 10,000 lines. This makes migrations slow to generate, hard to review, and prone to merge conflicts.
+
+`LazyStreamField` excludes block definitions from migration serialization:
+
+```python
+# migrations/0001_initial.py
+operations = [
+    migrations.AddField(
+        model_name='blogpage',
+        name='content',
+        field=lazy_streamfield.streamfield.LazyStreamField(blank=True, null=True),
+    ),
+]
+```
 
 ## Installation
-
-Install via pip:
 
 ```bash
 pip install wagtail-lazy-streamfield
@@ -22,21 +53,20 @@ pip install wagtail-lazy-streamfield
 
 ## Usage
 
-### 1. Define Blocks
+### Define Blocks
 
-Instead of instantiating blocks directly, define them using `StreamBlockDefinition` and string paths. This decouples your models from your block implementations.
+Use `StreamBlockDefinition` with string paths instead of instantiating blocks directly:
 
 ```python
 # blocks.py
 from lazy_streamfield import StreamBlockDefinition
 
-# Define blocks using their python import path
 BASE_BLOCKS = StreamBlockDefinition(
     ("text", "myapp.blocks.TextBlock"),
     ("image", "myapp.blocks.ImageBlock"),
 )
 
-# You can combine definitions using the | operator
+# Combine definitions with |
 MEDIA_BLOCKS = StreamBlockDefinition(
     ("video", "myapp.blocks.VideoBlock"),
 )
@@ -44,9 +74,9 @@ MEDIA_BLOCKS = StreamBlockDefinition(
 ALL_BLOCKS = BASE_BLOCKS | MEDIA_BLOCKS
 ```
 
-### 2. Use `LazyStreamField` in Models
+### Use in Models
 
-Replace standard `StreamField` with `LazyStreamField`.
+Replace `StreamField` with `LazyStreamField`:
 
 ```python
 # models.py
@@ -58,70 +88,19 @@ class BlogPage(Page):
     content = LazyStreamField(ALL_BLOCKS, blank=True)
 ```
 
-### 3. Use `LazyStreamBlock` for Nesting
+### Nested Blocks
 
-If you need lazy loading inside a `StructBlock` (e.g., to prevent recursion or just to tidy up), use `LazyStreamBlock`.
+Use `LazyStreamBlock` inside a `StructBlock` to prevent recursion or break import cycles:
 
 ```python
 # blocks.py
 from wagtail.blocks import StructBlock
 from lazy_streamfield import LazyStreamBlock, StreamBlockDefinition
 
-# This references the block below, which would normally cause a circular import
 NESTED_BLOCKS = StreamBlockDefinition(
     ("card", "myapp.blocks.CardBlock"),
 )
 
 class CardBlock(StructBlock):
-    # ... fields ...
-    # Use LazyStreamBlock for nested stream content
     content = LazyStreamBlock(NESTED_BLOCKS)
-```
-
-## Rationale
-
-### The Circular Import Problem
-
-In large Wagtail projects, blocks often become interdependent. For example, a `PageBlock` might import a `Page` model, which has a `StreamField` that uses `PageBlock`. This cycle causes `ImportError` at startup.
-
-**Standard Wagtail:**
-
-```python
-# Fails if CardBlock imports this file
-from .blocks import CardBlock
-
-class MyPage(Page):
-    body = StreamField([
-        ('card', CardBlock()),  # Instantation requires immediate import
-    ])
-```
-
-**With LazyStreamField:**
-
-```python
-# blocks.py - Block paths are just strings, no imports needed
-BLOCKS = StreamBlockDefinition(
-    ('card', 'myapp.blocks.CardBlock'),
-)
-
-# models.py - Safe: block resolution happens at runtime, not import time
-class MyPage(Page):
-    body = LazyStreamField(BLOCKS)
-```
-
-### The Migration Bloat Problem
-
-Wagtail freezes the entire `StreamField` block structure into Django migration files. For complex sites, a single migration can easily exceed 10,000 lines of code. This makes migrations slow to generate, hard to review, and prone to conflicts.
-
-`LazyStreamField` strips block definitions from the migration serialization, resulting in concise migrations:
-
-```python
-# migrations/0001_initial.py
-operations = [
-    migrations.AddField(
-        model_name='blogpage',
-        name='content',
-        field=lazy_streamfield.streamfield.LazyStreamField(blank=True, null=True),
-    ),
-]
 ```
