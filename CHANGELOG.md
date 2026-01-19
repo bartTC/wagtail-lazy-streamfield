@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Consolidated CI lint checks into single step using project dependencies.
 - Cleaned up ruff configuration, removed unnecessary ignore rules.
+- PyPI description now includes both README and CHANGELOG via `hatch-fancy-pypi-readme`.
 
 ## [1.0.0] - 2026-01-17
 
