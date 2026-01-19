@@ -1,6 +1,6 @@
 [project]
 name = "wagtail-lazy-streamfield"
-version = "1.0.0"
+version = "1.0.1"
 description = "Lazy-loading StreamField and StreamBlock for Wagtail that defers block instantiation to prevent circular imports and reduces migration bloat"
 license = "MIT"
 dynamic = ["readme"]
